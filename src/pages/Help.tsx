@@ -61,8 +61,8 @@ const termosDeUso = [
 const funcionalidades = [
   { name: "Info", desc: "Informações gerais da cidade selecionada: população, área, IDH, fundação e dados socioeconômicos." },
   { name: "Mapa", desc: "Mapa interativo com localização da cidade, pontos de interesse e lugares próximos." },
-  { name: "Navegar", desc: "GPS com rotas, alertas de trânsito em tempo real reportados pela comunidade." },
-  { name: "Agenda", desc: "Organize compromissos pessoais, tarefas e lembretes com notificações." },
+  { name: "Navegar", desc: "Navegação estilo Waze — mapa fullscreen, busca 'Para onde?', rotas com voz, radares, alertas de trânsito comunitários, tela cheia GPS dedicada com HUD (velocidade, tempo, chegada, distância)." },
+  { name: "Agenda", desc: "Organize compromissos pessoais, tarefas e lembretes com notificações. Inclui dicionário, lista de medicamentos e cadernos de anotações." },
   { name: "Bairros", desc: "Lista completa de bairros urbanos e rurais da cidade selecionada." },
   { name: "Ruas", desc: "Busca de ruas e logradouros organizados por bairro." },
   { name: "Clima", desc: "Previsão do tempo atualizada com temperatura, umidade e condições climáticas." },
@@ -80,19 +80,26 @@ const funcionalidades = [
 
 const ajuda = [
   { q: "Como troco de cidade?", a: "Na tela principal, toque no seletor de cidade no topo da página e escolha a cidade desejada." },
+  { q: "Como uso a navegação GPS?", a: "Na aba Navegar, toque em 'Para onde?', digite o destino e toque em 'Calcular Rota'. Depois clique no botão 'IR' para iniciar a navegação em tela cheia com voz, velocidade e radares." },
+  { q: "Como funciona a tela cheia de navegação?", a: "Ao tocar em 'IR', abre uma tela dedicada (/navegar) sem menus — apenas mapa e HUD com velocidade, tempo restante, hora de chegada e distância. No celular entra em tela cheia nativa, no desktop abre em nova aba." },
+  { q: "Como reportar alertas de trânsito?", a: "Na aba Navegar, toque no botão amarelo com triângulo no lado esquerdo do mapa. Escolha o tipo de alerta, toque no mapa para posicionar e envie. Outros usuários podem votar para confirmar." },
+  { q: "O app detecta radares?", a: "Sim! Ao calcular uma rota, o app busca radares, lombadas e semáforos no caminho. Durante a navegação, você recebe alertas visuais e sonoros com contagem regressiva de distância." },
   { q: "Como faço backup dos meus dados?", a: "Vá em Perfil → Gerenciar dados → Exportar. Escolha salvar na nuvem ou no dispositivo." },
   { q: "Como excluo minha conta?", a: "Vá em Perfil → Gerenciar dados → Excluir conta. Todos os seus dados serão removidos permanentemente." },
   { q: "Posso usar sem internet?", a: "O app é um PWA e funciona parcialmente offline. Alguns dados ficam em cache para acesso rápido." },
+  { q: "Como atualizo o app?", a: "O app atualiza automaticamente. Se quiser forçar, vá no menu (⋮) e toque em 'Atualizar', ou vá em Ajuda → Forçar atualização (admin)." },
   { q: "Como reporto um problema?", a: "Use o chat da rede social ou entre em contato pelo menu do aplicativo." },
   { q: "Como altero minha foto de perfil?", a: "Vá em Perfil, toque sobre a foto de perfil e escolha uma nova imagem. Você pode recortá-la antes de salvar." },
   { q: "O que é a sincronização?", a: "Quando ativada, sua cidade e aba ativa ficam iguais em todos os dispositivos conectados à sua conta." },
 ];
 
 const arquitetura = [
-  { title: "Stack Tecnológica", content: "React 18 + TypeScript + Vite | Tailwind CSS + shadcn/ui | Lovable Cloud (banco, auth, storage, realtime, edge functions) | Leaflet + React-Leaflet | PWA (vite-plugin-pwa)" },
-  { title: "Organização de Pastas", content: "src/components/ui/ → Componentes genéricos shadcn/ui reutilizáveis.\nsrc/components/common/ → Componentes utilitários do sistema (error boundary, guards, modais).\nsrc/components/city/ → Módulo de informações da cidade (mapa, bairros, clima, eventos, notícias).\nsrc/components/social/ → Módulo social (chat, grupos, contatos, chamadas WebRTC, IA).\nsrc/components/navigation/ → Módulo de navegação urbana (rotas, trânsito, busca).\nsrc/components/agenda/ → Módulo de agenda pessoal.\nsrc/components/admin/ → Módulo administrativo.\nsrc/config/ → Configurações de domínio (cidades, versão).\nsrc/hooks/ → Hooks genéricos e de domínio.\nsrc/pages/ → Páginas da aplicação.\nsupabase/functions/ → Edge Functions (backend serverless)." },
-  { title: "Princípio Genérico vs Específico", content: "🔷 Genérico: components/ui/, components/common/, hooks/use-*.ts — reutilizáveis em qualquer projeto.\n🟢 Específico: components/city/, social/, navigation/, agenda/, admin/, config/, supabase/functions/ — lógica do CidadeX." },
-  { title: "Edge Functions", content: "auto-backup (backup automático) | city-assistant (IA) | fetch-bus-schedules (ônibus) | fetch-events (eventos) | fetch-news (notícias) | fetch-places (lugares) | generate-recurring (parcelas recorrentes — cron mensal dia 1 às 06h UTC) | protected-content (conteúdo protegido) | track-referral (convites) | transcribe-audio (transcrição)." },
+  { title: "Stack Tecnológica", content: "React 18 + TypeScript + Vite | Tailwind CSS + shadcn/ui | Supabase (banco PostgreSQL, auth, storage, realtime, edge functions) | Leaflet (mapas) | OSRM (rotas) | Nominatim (geocoding) | Overpass (POI/radares) | PWA (vite-plugin-pwa)" },
+  { title: "Hospedagem", content: "Frontend: Vercel (www.cidadex-br.com) com deploy automático via GitHub.\nBackend: Supabase Cloud (PostgreSQL, Auth, Storage, Realtime, Edge Functions).\nDNS: IONOS com CNAME apontando para Vercel." },
+  { title: "Navegação GPS", content: "Inspirada no Waze: mapa fullscreen com overlays semitransparentes (backdrop-blur).\nBotão 'Para onde?' abre bottom sheet com busca, POI, alertas.\nRota calculada mostra card com tempo/distância/ETA e botão 'IR'.\nTela cheia dedicada (/navegar) com HUD: velocímetro, tempo restante, hora de chegada, distância.\nDetecção de radares/lombadas via Overpass API.\nAlertas de trânsito comunitários com votação.\nVoz em português (Web Speech API).\nCor accent: #33C6AA (teal)." },
+  { title: "Organização de Pastas", content: "src/components/ui/ → Componentes genéricos shadcn/ui reutilizáveis.\nsrc/components/common/ → Componentes utilitários do sistema (error boundary, guards, modais).\nsrc/components/city/ → Módulo de informações da cidade (mapa, bairros, clima, eventos, notícias).\nsrc/components/social/ → Módulo social (chat, grupos, contatos, chamadas WebRTC, IA).\nsrc/components/navigation/ → Módulo de navegação urbana (rotas, trânsito, radares, GPS fullscreen).\nsrc/components/agenda/ → Módulo de agenda pessoal, dicionário, medicamentos.\nsrc/components/finances/ → Módulo financeiro pessoal.\nsrc/components/admin/ → Módulo administrativo.\nsrc/config/ → Configurações de domínio (cidades, versão).\nsrc/hooks/ → Hooks genéricos e de domínio.\nsrc/pages/ → Páginas da aplicação (incluindo /navegar tela cheia).\nsupabase/functions/ → Edge Functions (backend serverless)." },
+  { title: "Princípio Genérico vs Específico", content: "🔷 Genérico: components/ui/, components/common/, hooks/use-*.ts — reutilizáveis em qualquer projeto.\n🟢 Específico: components/city/, social/, navigation/, agenda/, finances/, admin/, config/, supabase/functions/ — lógica do CidadeX." },
+  { title: "Edge Functions", content: "auto-backup (backup automático) | city-assistant (IA) | fetch-bus-schedules (ônibus) | fetch-events (eventos) | fetch-news (notícias) | fetch-places (lugares) | generate-recurring (parcelas recorrentes — cron mensal dia 1 às 06h UTC) | protected-content (conteúdo protegido) | track-referral (convites) | transcribe-audio (transcrição) | translate-text (tradução) | lookup-cep (CEP) | search-medication (medicamentos) | search-bula (bulas)." },
 ];
 
 const generatePDF = () => {
