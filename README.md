@@ -10,7 +10,7 @@ Aplicação web progressiva (PWA) focada em cidades cearenses, oferecendo inform
 |--------|-----------|
 | Frontend | React 18 + TypeScript + Vite |
 | Estilização | Tailwind CSS + shadcn/ui |
-| Backend | Lovable Cloud (Supabase) — banco, auth, storage, realtime, edge functions |
+| Backend | Supabase — banco PostgreSQL, auth, storage, realtime, edge functions |
 | Mapas | Leaflet + React-Leaflet |
 | PWA | vite-plugin-pwa |
 
@@ -71,6 +71,8 @@ src/
 │   │   ├── PoiSearch.tsx             # Busca de pontos de interesse
 │   │   ├── StreetPicker.tsx          # Seletor de rua
 │   │   ├── TrafficAlertsSection.tsx  # Alertas de trânsito
+│   │   ├── NavigationFullscreen.tsx   # Navegação GPS fullscreen (HUD)
+│   │   ├── speedCameras.ts           # Detecção de radares (Overpass API)
 │   │   ├── types.ts                  # Tipos do módulo
 │   │   └── utils.ts                  # Utilitários do módulo
 │   │
@@ -106,6 +108,7 @@ src/
 │   ├── Auth.tsx             # Login / Cadastro
 │   ├── Profile.tsx          # Perfil do usuário
 │   ├── Admin.tsx            # Painel administrativo
+│   ├── NavegacaoTelaCheiaPage.tsx # Navegação GPS tela cheia (/navegar)
 │   ├── Help.tsx             # Ajuda
 │   ├── Install.tsx          # Instalação do PWA
 │   ├── ResetPassword.tsx    # Recuperação de senha
@@ -167,6 +170,7 @@ supabase/
 ┌───────────────┼──────────────────┐
 │  ┌────────────┴───────────────┐  │
 │  │  Lovable Cloud (Backend)   │  │
+│  │     Supabase (Backend)      │  │
 │  │  • Auth (email/senha)      │  │
 │  │  • Database (PostgreSQL)   │  │
 │  │  • Storage (arquivos)      │  │
@@ -184,24 +188,44 @@ supabase/
 - **Social**: Feed com posts, curtidas, reações emoji, repost e comentários
 - **Chat**: Mensagens diretas e grupos com texto, imagem, áudio e vídeo
 - **Chamadas**: Voz e vídeo via WebRTC com sinalização por banco em tempo real
-- **Navegação**: Rotas, busca de endereço, alertas de trânsito colaborativos
-- **Agenda**: Compromissos pessoais com categorias e lembretes
-- **IA**: Assistente virtual por cidade (powered by Lovable AI)
-- **PWA**: Instalável, funciona offline parcialmente
+- **Navegação**: Estilo Waze — mapa fullscreen, "Para onde?", rota com voz, radares, alertas comunitários, tela cheia GPS dedicada (`/navegar`)
+- **Agenda**: Compromissos pessoais com categorias, lembretes, dicionário, medicamentos e lista de compras
+- **Finanças**: Controle financeiro pessoal com contas, categorias e relatórios
+- **IA**: Assistente virtual por cidade (powered by Supabase Edge Functions)
+- **PWA**: Instalável, funciona offline parcialmente, auto-update com skipWaiting
 
 ---
 
 ## 🚀 Desenvolvimento Local
 
 ```bash
-git clone <URL_DO_REPO>
-cd <NOME_DO_PROJETO>
+git clone https://github.com/cidadexbr-oss/CidadeX-BR.git
+cd CidadeX-BR
 npm install
 npm run dev
 ```
+
+Variáveis de ambiente necessárias (`.env`):
+```
+VITE_SUPABASE_URL=<sua_url>
+VITE_SUPABASE_PUBLISHABLE_KEY=<sua_chave_anon>
+```
+
+## 🌐 Deploy
+
+**Hosting**: Vercel (https://www.cidadex-br.com)
+
+```bash
+npx vercel           # Preview deploy (gera URL temporária para teste)
+npx vercel --prod    # Production deploy
+```
+
+O push para `main` também dispara deploy no Vercel.
+
+**Atualizar versão**: editar `src/config/version.ts` e `public/version.json`.
 
 ---
 
 ## 📄 Licença
 
-Projeto privado — todos os direitos reservados.
+Projeto privado — todos os direitos reservados. Sistemas Guarany.
