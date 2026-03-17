@@ -1,0 +1,1 @@
+ALTER TABLE public.agenda_items ADD COLUMN destination_zipcode text DEFAULT NULL;

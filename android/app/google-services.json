@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "404460645936",
+    "project_id": "cidadex-70394",
+    "storage_bucket": "cidadex-70394.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404460645936:android:e719792aa1960069d007f5",
+        "android_client_info": {
+          "package_name": "com.cidadex.br"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiqKXrXBbrTJv8wVLNlE5FF7bFyMcAl-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 140 20% 97%;
+    --foreground: 150 30% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 10%;
+
+    --primary: 152 60% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 95% 55%;
+    --secondary-foreground: 150 30% 10%;
+
+    --muted: 140 15% 93%;
+    --muted-foreground: 150 10% 45%;
+
+    --accent: 45 95% 55%;
+    --accent-foreground: 150 30% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 15% 88%;
+    --input: 140 15% 88%;
+    --ring: 152 60% 36%;
+
+    --radius: 0.75rem;
+
+    --city-green: 152 60% 36%;
+    --city-gold: 45 95% 55%;
+    --city-dark: 150 30% 10%;
+    --city-sky: 200 80% 55%;
+    --city-warm: 20 80% 55%;
+    --whatsapp: 142 70% 49%;
+    --whatsapp-foreground: 0 0% 100%;
+    --app-comm: 217 80% 50%;
+    --app-comm-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 150 25% 6%;
+    --foreground: 140 20% 95%;
+
+    --card: 150 20% 10%;
+    --card-foreground: 140 20% 95%;
+
+    --popover: 150 20% 10%;
+    --popover-foreground: 140 20% 95%;
+
+    --primary: 152 60% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 90% 50%;
+    --secondary-foreground: 150 30% 10%;
+
+    --muted: 150 15% 15%;
+    --muted-foreground: 140 10% 60%;
+
+    --accent: 45 90% 50%;
+    --accent-foreground: 150 30% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 15% 18%;
+    --input: 150 15% 18%;
+    --ring: 152 60% 42%;
+
+    --sidebar-background: 150 20% 8%;
+    --sidebar-foreground: 140 20% 90%;
+    --sidebar-primary: 152 60% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 15% 15%;
+    --sidebar-accent-foreground: 140 20% 90%;
+    --sidebar-border: 150 15% 18%;
+    --sidebar-ring: 152 60% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  input, textarea, [contenteditable="true"] {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border/50 shadow-lg;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--city-sky)));
+  }
+
+  .gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--city-warm)));
+  }
+
+  .gradient-hero {
+    background: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(152 60% 25%) 100%);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--city-sky)));
+  }
+}
+
+/* Leaflet cursor override for picking mode */
+.leaflet-picking-mode {
+  cursor: crosshair !important;
+}
+.leaflet-picking-mode * {
+  cursor: crosshair !important;
+}
+
+/* Make draggable markers show grab cursor */
+.leaflet-marker-draggable {
+  cursor: grab !important;
+}
+.leaflet-marker-draggable:active {
+  cursor: grabbing !important;
+}
+
+/* Banner ticker scroll animation */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Safe area for bottom navigation */
+.safe-area-bottom {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+:root {
+  --header-height: 56px;
+  --tabbar-height: 44px;
+  --bottomnav-height: 64px;
+  --sticky-total: calc(var(--header-height) + var(--tabbar-height));
+}
+
+/* Prevent anchored scroll from hiding behind sticky bars */
+html {
+  scroll-padding-top: var(--sticky-total);
+}
+
+/* Global fix: ensure content inside main never scrolls behind sticky header+tabbar */
+main > * {
+  scroll-margin-top: var(--sticky-total);
+}
+
+/* Scroll snap for horizontal tabs */
+.tabs-scroll-snap {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs-scroll-snap > * {
+  scroll-snap-align: start;
+}
+
+/* Fade edges on scrollable tabs */
+.tabs-fade-container {
+  mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 24px), transparent 100%);
+}
+
+/* Touch-friendly minimum sizes */
+@media (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

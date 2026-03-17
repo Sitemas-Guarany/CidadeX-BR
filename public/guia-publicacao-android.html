@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Publicação - CidadeX na Google Play Store</title>
+  <style>
+    @media print {
+      body { font-size: 11pt; }
+      .no-print { display: none; }
+      h1 { font-size: 18pt; }
+      h2 { font-size: 14pt; }
+      h3 { font-size: 12pt; }
+      .page-break { page-break-before: always; }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.7;
+      color: #1a1a2e;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 30px;
+      background: #fff;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #1a1f36;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      color: #1a1f36;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #1a1f36;
+      margin-top: 30px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #d4af37;
+    }
+
+    h3 {
+      font-size: 16px;
+      color: #2c3e6b;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    ol > li {
+      margin-bottom: 12px;
+    }
+
+    code {
+      background: #f0f0f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #c0392b;
+    }
+
+    pre {
+      background: #1a1f36;
+      color: #e0e0e0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+
+    .box {
+      border: 1px solid #ddd;
+      border-left: 4px solid #d4af37;
+      background: #fafaf5;
+      padding: 14px 18px;
+      border-radius: 6px;
+      margin: 16px 0;
+    }
+
+    .box.warning {
+      border-left-color: #e74c3c;
+      background: #fef5f5;
+    }
+
+    .box.info {
+      border-left-color: #3498db;
+      background: #f5f9fe;
+    }
+
+    .box.success {
+      border-left-color: #27ae60;
+      background: #f5fef8;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      padding: 6px 0 6px 30px;
+      position: relative;
+      border-bottom: 1px dotted #ddd;
+    }
+
+    .checklist li::before {
+      content: '☐';
+      position: absolute;
+      left: 4px;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #1a1f36;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) { background: #f8f8fc; }
+
+    .btn-print {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1a1f36;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .btn-print:hover { background: #2c3e6b; }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #1a1f36;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<button class="btn-print no-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+
+<div class="header">
+  <h1>📱 Guia de Publicação — CidadeX</h1>
+  <p>Google Play Store • Versão 1.4.4 • Fevereiro 2026</p>
+</div>
+
+<!-- ===== SEÇÃO 1 ===== -->
+<h2>1. Pré-requisitos</h2>
+
+<ul class="checklist">
+  <li>Conta de Desenvolvedor Google Play ($25 taxa única) — <a href="https://play.google.com/console">play.google.com/console</a></li>
+  <li>Android Studio instalado (versão mais recente)</li>
+  <li>Node.js 18+ e npm instalados</li>
+  <li>Git instalado e projeto clonado do GitHub</li>
+  <li>JDK 17 instalado (necessário para builds Android)</li>
+</ul>
+
+<!-- ===== SEÇÃO 2 ===== -->
+<h2>2. Configuração do Projeto</h2>
+
+<h3>2.1 Dados do Capacitor</h3>
+<table>
+  <tr><th>Campo</th><th>Valor</th></tr>
+  <tr><td>App ID</td><td><code>com.cidadex.br</code></td></tr>
+  <tr><td>App Name</td><td><code>CidadeX</code></td></tr>
+  <tr><td>Web Dir</td><td><code>dist</code></td></tr>
+</table>
+
+<div class="box warning">
+  <strong>⚠️ Importante — Produção</strong>
+  Remova o bloco <code>server</code> do <code>capacitor.config.ts</code> antes do build de produção. O app deve servir arquivos locais, não de um servidor remoto.
+</div>
+
+<h3>2.2 Comandos Iniciais</h3>
+<pre><code># 1. Clonar o repositório
+git clone https://github.com/SEU_USUARIO/cidadex-br.git
+cd cidadex-br
+
+# 2. Instalar dependências
+npm install
+
+# 3. Adicionar plataforma Android (apenas primeira vez)
+npx cap add android
+
+# 4. Gerar ícones nativos (opcional — requer @capacitor/assets)
+npm install -D @capacitor/assets
+npx capacitor-assets generate --iconBackgroundColor "#1a1f36" --splashBackgroundColor "#1a1f36"
+
+# 5. Build de produção
+npm run build
+
+# 6. Sincronizar com Android
+npx cap sync android
+
+# 7. Abrir no Android Studio
+npx cap open android</code></pre>
+
+<!-- ===== SEÇÃO 3 ===== -->
+<div class="page-break"></div>
+<h2>3. Gerar App Bundle Assinado (.aab)</h2>
+
+<h3>3.1 Criar Keystore (apenas primeira vez)</h3>
+<ol>
+  <li>No Android Studio: <strong>Build → Generate Signed Bundle / APK</strong></li>
+  <li>Selecione <strong>Android App Bundle</strong></li>
+  <li>Clique em <strong>Create new...</strong> para criar uma nova Keystore</li>
+  <li>Preencha os campos:
+    <table>
+      <tr><th>Campo</th><th>Exemplo</th></tr>
+      <tr><td>Key store path</td><td><code>~/cidadex-keystore.jks</code></td></tr>
+      <tr><td>Password</td><td>Senha forte (anote e guarde!)</td></tr>
+      <tr><td>Key alias</td><td><code>cidadex-key</code></td></tr>
+      <tr><td>Key password</td><td>Senha forte (anote e guarde!)</td></tr>
+      <tr><td>Validity (years)</td><td><code>25</code></td></tr>
+      <tr><td>First and Last Name</td><td>Seu nome completo</td></tr>
+      <tr><td>Organization</td><td>CidadeX</td></tr>
+      <tr><td>Country Code</td><td><code>BR</code></td></tr>
+    </table>
+  </li>
+  <li>Clique <strong>OK</strong> e depois <strong>Next</strong></li>
+  <li>Selecione <strong>release</strong> e clique em <strong>Create</strong></li>
+</ol>
+
+<div class="box warning">
+  <strong>🔐 CRÍTICO — Guarde a Keystore!</strong>
+  A Keystore é a identidade do seu app. Se perdê-la, <strong>nunca mais poderá atualizar o app</strong> na Play Store. Faça backup em local seguro (pen drive, cofre, nuvem criptografada).
+</div>
+
+<h3>3.2 Localização do Bundle Gerado</h3>
+<pre><code>android/app/release/app-release.aab</code></pre>
+
+<!-- ===== SEÇÃO 4 ===== -->
+<h2>4. Configuração na Google Play Console</h2>
+
+<h3>4.1 Criar o App</h3>
+<ol>
+  <li>Acesse <a href="https://play.google.com/console">play.google.com/console</a></li>
+  <li>Clique em <strong>Criar app</strong></li>
+  <li>Preencha:
+    <table>
+      <tr><th>Campo</th><th>Valor</th></tr>
+      <tr><td>Nome do app</td><td>CidadeX</td></tr>
+      <tr><td>Idioma padrão</td><td>Português (Brasil)</td></tr>
+      <tr><td>Tipo</td><td>App</td></tr>
+      <tr><td>Gratuito / Pago</td><td>Gratuito</td></tr>
+    </table>
+  </li>
+  <li>Aceite as declarações e clique em <strong>Criar app</strong></li>
+</ol>
+
+<h3>4.2 Ficha da Loja (Store Listing)</h3>
+
+<table>
+  <tr><th>Campo</th><th>Conteúdo Sugerido</th></tr>
+  <tr><td>Nome</td><td>CidadeX — Sua Cidade na Palma da Mão</td></tr>
+  <tr><td>Descrição curta (80 chars)</td><td>Informações, navegação, agenda e rede social da sua cidade cearense.</td></tr>
+  <tr>
+    <td>Descrição longa</td>
+    <td>
+      CidadeX é o app completo para quem vive no Ceará. Acompanhe notícias locais, eventos, clima em tempo real e navegue pela sua cidade com mapas interativos. Organize sua agenda pessoal, controle suas finanças, converse com vizinhos e participe de grupos da comunidade. Tudo em um único app, com design moderno e funcionamento offline.
+      <br><br>
+      ✔ Notícias e eventos locais em tempo real<br>
+      ✔ Mapa interativo com navegação GPS<br>
+      ✔ Agenda pessoal com lembretes<br>
+      ✔ Controle financeiro completo<br>
+      ✔ Chat e rede social local<br>
+      ✔ Assistente IA integrado<br>
+      ✔ Lista de compras inteligente<br>
+      ✔ Funciona offline
+    </td>
+  </tr>
+</table>
+
+<h3>4.3 Recursos Gráficos Obrigatórios</h3>
+
+<table>
+  <tr><th>Recurso</th><th>Especificação</th><th>Arquivo no Projeto</th></tr>
+  <tr><td>Ícone do app</td><td>512×512 px, PNG, 32 bits</td><td><code>src/assets/icon-base-1024.png</code> (redimensionar)</td></tr>
+  <tr><td>Feature Graphic</td><td>1024×500 px, PNG ou JPG</td><td><code>src/assets/playstore-feature-graphic.png</code></td></tr>
+  <tr><td>Screenshots (mín. 2)</td><td>entre 320px e 3840px, proporção 16:9 ou 9:16</td><td><code>src/assets/playstore-screenshot-*.png</code></td></tr>
+</table>
+
+<div class="box info">
+  <strong>💡 Dica</strong>
+  A Play Store exige no mínimo 2 screenshots, mas recomenda-se 5 a 8 para melhor conversão. O projeto já possui 5 mockups prontos.
+</div>
+
+<!-- ===== SEÇÃO 5 ===== -->
+<div class="page-break"></div>
+<h2>5. Declarações Obrigatórias</h2>
+
+<p>Antes de publicar, a Google exige que você preencha várias declarações no painel. Complete cada seção:</p>
+
+<ul class="checklist">
+  <li><strong>Política de Privacidade</strong> — URL obrigatória (use a página <code>/privacy</code> do app publicado)</li>
+  <li><strong>Acesso ao app</strong> — Se o app requer login, forneça credenciais de teste</li>
+  <li><strong>Anúncios</strong> — Declare se o app contém anúncios (CidadeX: Não)</li>
+  <li><strong>Classificação do conteúdo</strong> — Preencha o questionário IARC</li>
+  <li><strong>Público-alvo</strong> — Selecione a faixa etária (13+ recomendado)</li>
+  <li><strong>App de notícias</strong> — Declare se é um app de notícias</li>
+  <li><strong>Segurança dos dados</strong> — Declare os dados coletados/compartilhados</li>
+  <li><strong>Apps governamentais</strong> — Declare que NÃO é um app governamental</li>
+</ul>
+
+<h3>5.1 Segurança dos Dados (Data Safety)</h3>
+
+<table>
+  <tr><th>Tipo de Dado</th><th>Coletado?</th><th>Compartilhado?</th><th>Finalidade</th></tr>
+  <tr><td>E-mail</td><td>Sim</td><td>Não</td><td>Autenticação</td></tr>
+  <tr><td>Nome</td><td>Sim</td><td>Sim (perfil público)</td><td>Funcionalidade do app</td></tr>
+  <tr><td>Telefone</td><td>Opcional</td><td>Não</td><td>Contato entre usuários</td></tr>
+  <tr><td>Localização aproximada</td><td>Sim</td><td>Não</td><td>Navegação e mapas</td></tr>
+  <tr><td>Fotos</td><td>Sim</td><td>Sim (posts)</td><td>Funcionalidade social</td></tr>
+  <tr><td>Mensagens</td><td>Sim</td><td>Não</td><td>Chat entre usuários</td></tr>
+  <tr><td>Dados financeiros</td><td>Sim</td><td>Não</td><td>Controle financeiro pessoal</td></tr>
+</table>
+
+<!-- ===== SEÇÃO 6 ===== -->
+<h2>6. Publicação e Revisão</h2>
+
+<ol>
+  <li>Vá em <strong>Produção → Criar nova versão</strong></li>
+  <li>Faça upload do arquivo <code>.aab</code></li>
+  <li>Adicione notas da versão:
+    <pre><code>Versão 1.4.4
+• App completo para cidades do Ceará
+• Notícias, eventos e clima em tempo real
+• Navegação GPS com mapas interativos
+• Agenda pessoal e controle financeiro
+• Chat e rede social local
+• Assistente IA integrado</code></pre>
+  </li>
+  <li>Clique em <strong>Revisar versão</strong> e depois <strong>Iniciar lançamento para Produção</strong></li>
+</ol>
+
+<div class="box info">
+  <strong>⏱ Tempo de Revisão</strong>
+  A primeira revisão pode levar de <strong>3 a 7 dias úteis</strong>. Atualizações subsequentes costumam levar 1-2 dias.
+</div>
+
+<!-- ===== SEÇÃO 7 ===== -->
+<h2>7. Atualizações Futuras</h2>
+
+<pre><code># Para cada nova versão:
+git pull origin main
+npm install
+npm run build
+npx cap sync android
+npx cap open android
+
+# No Android Studio:
+# 1. Incremente versionCode e versionName em android/app/build.gradle
+# 2. Build → Generate Signed Bundle / APK
+# 3. Upload do novo .aab na Play Console</code></pre>
+
+<div class="box success">
+  <strong>✅ Dica de Versionamento</strong>
+  Sempre atualize <code>versionCode</code> (inteiro incremental) e <code>versionName</code> (ex: "1.4.4") no <code>build.gradle</code> antes de gerar o bundle.
+</div>
+
+<!-- ===== SEÇÃO 8 ===== -->
+<div class="page-break"></div>
+<h2>8. Checklist Final</h2>
+
+<ul class="checklist">
+  <li>Conta Google Play Developer criada e verificada</li>
+  <li>Bloco <code>server</code> removido do <code>capacitor.config.ts</code></li>
+  <li>Build de produção gerado (<code>npm run build</code>)</li>
+  <li>Sincronização feita (<code>npx cap sync android</code>)</li>
+  <li>Keystore criada e guardada em local seguro</li>
+  <li>App Bundle (.aab) gerado e assinado</li>
+  <li>Ícone 512×512 enviado</li>
+  <li>Feature Graphic 1024×500 enviado</li>
+  <li>Mínimo de 2 screenshots enviados</li>
+  <li>Descrição curta e longa preenchidas</li>
+  <li>Política de Privacidade com URL válida</li>
+  <li>Classificação de conteúdo (IARC) preenchida</li>
+  <li>Segurança dos dados preenchida</li>
+  <li>Público-alvo definido</li>
+  <li>Versão enviada para revisão</li>
+</ul>
+
+<!-- ===== SEÇÃO 9 ===== -->
+<h2>9. Solução de Problemas Comuns</h2>
+
+<table>
+  <tr><th>Problema</th><th>Solução</th></tr>
+  <tr><td>Tela branca no app</td><td>Verifique se o bloco <code>server</code> foi removido e se o <code>npm run build</code> rodou sem erros</td></tr>
+  <tr><td>Ícone genérico do Android</td><td>Rode <code>npx capacitor-assets generate</code> e depois <code>npx cap sync</code></td></tr>
+  <tr><td>Erro de assinatura</td><td>Verifique se está usando a mesma Keystore e as senhas corretas</td></tr>
+  <tr><td>Rejeição por política</td><td>Revise as declarações na seção 5 e corrija os pontos indicados pelo Google</td></tr>
+  <tr><td>versionCode duplicado</td><td>Incremente o <code>versionCode</code> no <code>build.gradle</code></td></tr>
+  <tr><td>App crash na abertura</td><td>Teste em emulador antes. Verifique o Logcat no Android Studio</td></tr>
+</table>
+
+<div class="footer">
+  <p>CidadeX — Guia de Publicação Android • Gerado em 26/02/2026</p>
+  <p>Documento para uso interno. Imprima ou salve como PDF.</p>
+</div>
+
+</body>
+</html>

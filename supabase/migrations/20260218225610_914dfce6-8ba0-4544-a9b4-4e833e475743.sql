@@ -1,0 +1,1 @@
+ALTER TABLE public.agenda_items ADD COLUMN position integer DEFAULT 0;

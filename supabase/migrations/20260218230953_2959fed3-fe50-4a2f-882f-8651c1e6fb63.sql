@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN visible_tabs jsonb DEFAULT NULL;

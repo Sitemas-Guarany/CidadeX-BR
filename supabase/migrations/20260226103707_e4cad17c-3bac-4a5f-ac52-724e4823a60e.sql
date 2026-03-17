@@ -1,0 +1,1 @@
+ALTER TABLE public.agenda_attachments ADD COLUMN display_name TEXT;

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Política de Privacidade — CidadeX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --laranja: #E8650A;
+      --laranja-escuro: #C4530A;
+      --laranja-claro: #FF8C3A;
+      --preto: #0D0D0D;
+      --cinza-escuro: #1A1A1A;
+      --cinza-medio: #2A2A2A;
+      --cinza-texto: #888;
+      --branco: #F5F2EE;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--preto);
+      color: var(--branco);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(232,101,10,0.2);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--laranja);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: white;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--branco);
+    }
+
+    .logo-text span { color: var(--laranja); }
+
+    /* Hero */
+    .hero {
+      padding: 5rem 2rem 3rem;
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(232,101,10,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(232,101,10,0.15);
+      border: 1px solid rgba(232,101,10,0.3);
+      color: var(--laranja-claro);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+      color: var(--branco);
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--laranja);
+    }
+
+    .hero-sub {
+      color: var(--cinza-texto);
+      font-size: 0.95rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-sub span { display: flex; align-items: center; gap: 0.4rem; }
+
+    /* Layout */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 0;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section:nth-child(1)  { animation-delay: 0.05s; }
+    .section:nth-child(2)  { animation-delay: 0.10s; }
+    .section:nth-child(3)  { animation-delay: 0.15s; }
+    .section:nth-child(4)  { animation-delay: 0.20s; }
+    .section:nth-child(5)  { animation-delay: 0.25s; }
+    .section:nth-child(6)  { animation-delay: 0.30s; }
+    .section:nth-child(7)  { animation-delay: 0.35s; }
+    .section:nth-child(8)  { animation-delay: 0.40s; }
+    .section:nth-child(9)  { animation-delay: 0.45s; }
+    .section:nth-child(10) { animation-delay: 0.50s; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--laranja);
+      opacity: 0.7;
+      letter-spacing: 1px;
+      min-width: 28px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--branco);
+      letter-spacing: -0.3px;
+    }
+
+    p {
+      color: #AAA;
+      font-size: 0.93rem;
+      line-height: 1.85;
+      margin-bottom: 0.8rem;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0;
+    }
+
+    ul li {
+      color: #AAA;
+      font-size: 0.93rem;
+      padding: 0.4rem 0 0.4rem 1.4rem;
+      position: relative;
+      line-height: 1.7;
+    }
+
+    ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--laranja);
+      font-size: 0.8rem;
+    }
+
+    /* Highlight box */
+    .highlight {
+      background: rgba(232,101,10,0.07);
+      border: 1px solid rgba(232,101,10,0.2);
+      border-left: 3px solid var(--laranja);
+      border-radius: 0 8px 8px 0;
+      padding: 1.2rem 1.4rem;
+      margin: 1rem 0;
+    }
+
+    .highlight p { color: #CCC; margin: 0; }
+
+    /* Contact card */
+    .contact-card {
+      background: var(--cinza-escuro);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .contact-card a {
+      color: var(--laranja-claro);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .contact-card a:hover { text-decoration: underline; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem;
+      text-align: center;
+      color: var(--cinza-texto);
+      font-size: 0.82rem;
+    }
+
+    footer strong { color: var(--laranja); }
+
+    @media (max-width: 600px) {
+      header { padding: 0.8rem 1.2rem; }
+      .hero  { padding: 3rem 1.2rem 2rem; }
+      .container { padding: 0 1.2rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="https://cidadex-br.com" class="logo">
+    <div class="logo-icon">CidX</div>
+    <span class="logo-text">Cidade<span>X</span></span>
+  </a>
+</header>
+
+<div class="hero">
+  <div class="tag">Documento Legal</div>
+  <h1>Política de <em>Privacidade</em></h1>
+  <div class="hero-sub">
+    <span>📅 Última atualização: março de 2026</span>
+    <span>🇧🇷 Conforme a LGPD</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Introdução</h2>
+    </div>
+    <p>O <strong>CidadeX</strong> ("nós", "nosso" ou "aplicativo") é uma plataforma digital voltada para cidadãos brasileiros, com foco em conectar moradores às informações, serviços e comunidade de suas cidades.</p>
+    <p>Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos suas informações pessoais, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong>.</p>
+    <div class="highlight">
+      <p>Ao utilizar o CidadeX, você concorda com as práticas descritas nesta política. Se não concordar, por favor, não utilize o aplicativo.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Dados que Coletamos</h2>
+    </div>
+    <p>Coletamos apenas os dados necessários para o funcionamento do aplicativo:</p>
+    <ul>
+      <li><strong>Dados de cadastro:</strong> nome, e-mail e senha (criptografada)</li>
+      <li><strong>Dados de perfil:</strong> foto, cidade de residência e informações opcionais que você preencher</li>
+      <li><strong>Conteúdo gerado:</strong> mensagens, postagens, comentários e arquivos enviados no app</li>
+      <li><strong>Dados de localização:</strong> apenas quando você utiliza funcionalidades de mapa, mediante sua permissão explícita</li>
+      <li><strong>Dados de uso:</strong> interações com o app para melhoria da experiência (não identificáveis individualmente)</li>
+      <li><strong>Câmera e arquivos:</strong> somente quando você escolhe enviar fotos ou documentos</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Como Usamos seus Dados</h2>
+    </div>
+    <p>Suas informações são utilizadas exclusivamente para:</p>
+    <ul>
+      <li>Criar e gerenciar sua conta no aplicativo</li>
+      <li>Personalizar sua experiência conforme sua cidade</li>
+      <li>Permitir comunicação entre usuários da plataforma</li>
+      <li>Enviar notificações relevantes sobre sua cidade (com sua autorização)</li>
+      <li>Melhorar funcionalidades e corrigir problemas técnicos</li>
+      <li>Cumprir obrigações legais quando exigido por lei</li>
+    </ul>
+    <div class="highlight">
+      <p><strong>Não vendemos, alugamos ou compartilhamos seus dados pessoais com terceiros para fins comerciais.</strong></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Armazenamento e Segurança</h2>
+    </div>
+    <p>Seus dados são armazenados de forma segura na plataforma <strong>Supabase</strong>, com servidores localizados fora do Brasil, mas em conformidade com as exigências da LGPD para transferência internacional de dados.</p>
+    <p>Adotamos as seguintes medidas de segurança:</p>
+    <ul>
+      <li>Criptografia de senhas com algoritmos modernos (bcrypt)</li>
+      <li>Comunicação criptografada via HTTPS/TLS</li>
+      <li>Controle de acesso por autenticação segura (JWT)</li>
+      <li>Backups automáticos e monitoramento de segurança</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Compartilhamento de Dados</h2>
+    </div>
+    <p>Seus dados podem ser compartilhados apenas nas seguintes situações:</p>
+    <ul>
+      <li><strong>Supabase:</strong> provedor de infraestrutura de banco de dados e autenticação</li>
+      <li><strong>Autoridades competentes:</strong> quando exigido por ordem judicial ou lei aplicável</li>
+      <li><strong>Com seu consentimento:</strong> em qualquer outra situação, somente com sua autorização explícita</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Seus Direitos (LGPD)</h2>
+    </div>
+    <p>Conforme a LGPD, você tem os seguintes direitos sobre seus dados:</p>
+    <ul>
+      <li><strong>Acesso:</strong> solicitar uma cópia de todos os seus dados</li>
+      <li><strong>Correção:</strong> atualizar dados incorretos ou incompletos</li>
+      <li><strong>Exclusão:</strong> solicitar a remoção de sua conta e dados pessoais</li>
+      <li><strong>Portabilidade:</strong> receber seus dados em formato estruturado</li>
+      <li><strong>Revogação:</strong> retirar o consentimento a qualquer momento</li>
+      <li><strong>Oposição:</strong> se opor a determinados usos dos seus dados</li>
+    </ul>
+    <p>Para exercer qualquer um desses direitos, entre em contato pelo e-mail abaixo.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Retenção de Dados</h2>
+    </div>
+    <p>Mantemos seus dados enquanto sua conta estiver ativa. Ao solicitar a exclusão da conta, seus dados pessoais serão removidos em até <strong>30 dias</strong>, exceto quando a retenção for exigida por lei ou para resolver disputas.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Crianças e Adolescentes</h2>
+    </div>
+    <p>O CidadeX não é direcionado a menores de 13 anos. Não coletamos intencionalmente dados de crianças. Caso identifiquemos dados de menores coletados sem consentimento dos responsáveis, eles serão excluídos imediatamente.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Alterações nesta Política</h2>
+    </div>
+    <p>Podemos atualizar esta política periodicamente. Quando houver mudanças significativas, notificaremos você dentro do aplicativo ou por e-mail com pelo menos <strong>15 dias de antecedência</strong>.</p>
+    <p>O uso contínuo do aplicativo após as alterações constitui aceitação da nova política.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Contato e Encarregado (DPO)</h2>
+    </div>
+    <p>Para dúvidas, solicitações ou exercício dos seus direitos, entre em contato:</p>
+    <div class="contact-card">
+      <p><strong>CidadeX — Plataforma Digital para Cidadãos</strong></p>
+      <p>📧 E-mail: <a href="mailto:privacidade@cidadex-br.com">privacidade@cidadex-br.com</a></p>
+      <p>🌐 Site: <a href="https://cidadex-br.com">cidadex-br.com</a></p>
+      <p>📍 Itapipoca, Ceará — Brasil</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 <strong>CidadeX</strong> — Todos os direitos reservados.</p>
+  <p style="margin-top:0.4rem;">Política em conformidade com a LGPD (Lei nº 13.709/2018)</p>
+</footer>
+
+</body>
+</html>

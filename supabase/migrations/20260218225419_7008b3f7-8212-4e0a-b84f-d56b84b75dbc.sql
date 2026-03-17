@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN agenda_view_mode text DEFAULT 'table';

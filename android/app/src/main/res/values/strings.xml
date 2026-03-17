@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CidadeX</string>
+    <string name="title_activity_main">CidadeX</string>
+    <string name="package_name">com.cidadex.br</string>
+    <string name="custom_url_scheme">com.cidadex.br</string>
+</resources>

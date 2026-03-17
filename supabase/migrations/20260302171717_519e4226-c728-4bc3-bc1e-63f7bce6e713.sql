@@ -1,0 +1,1 @@
+ALTER TABLE public.financial_records ADD COLUMN attachment_name text DEFAULT NULL;

@@ -1,0 +1,28 @@
+project_id = "deausjjxnvfwryhtjenx"
+
+[functions.fetch-places]
+verify_jwt = false
+
+[functions.fetch-news]
+verify_jwt = false
+
+[functions.fetch-events]
+verify_jwt = false
+
+[functions.track-referral]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = false
+
+[functions.translate-text]
+verify_jwt = false
+
+[functions.lookup-word]
+verify_jwt = false
+
+[functions.search-medication]
+verify_jwt = false
+
+[functions.search-bula]
+verify_jwt = false

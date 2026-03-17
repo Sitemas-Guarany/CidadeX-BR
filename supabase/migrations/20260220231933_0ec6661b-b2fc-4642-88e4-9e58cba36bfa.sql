@@ -1,0 +1,1 @@
+ALTER TABLE public.financial_records ADD COLUMN recurring_active boolean NOT NULL DEFAULT true;

@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN tab_order jsonb DEFAULT NULL;

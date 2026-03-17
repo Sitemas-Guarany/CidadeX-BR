@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN active_tab text DEFAULT 'info';
