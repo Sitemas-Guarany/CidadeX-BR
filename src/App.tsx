@@ -24,6 +24,7 @@ import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import Privacy from "./pages/Privacy";
 import Viewer from "./pages/Viewer";
+import NavegacaoTelaCheiaPage from "./pages/NavegacaoTelaCheiaPage";
 
 // Fix Android StatusBar color to match app header
 async function initStatusBar() {
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/ajuda" element={<ProtectedRoute><Help /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               <Route path="/visualizador" element={<ProtectedRoute><Viewer /></ProtectedRoute>} />
+              <Route path="/navegar" element={<ProtectedRoute><NavegacaoTelaCheiaPage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

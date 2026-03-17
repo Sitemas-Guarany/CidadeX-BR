@@ -21,6 +21,8 @@ import TrafficAlertsSection from "./navigation/TrafficAlertsSection";
 import PoiSearch from "./navigation/PoiSearch";
 import NavigationFullscreen from "./navigation/NavigationFullscreen";
 import { fetchSpeedCameras, type SpeedCamera } from "./navigation/speedCameras";
+import { useIsMobile } from "@/hooks/use-mobile";
+import type { NavFullscreenData } from "@/pages/NavegacaoTelaCheiaPage";
 
 const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], ruas = [], initialDestination }: NavigationSectionProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -33,6 +35,7 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
   const watchId = useRef<number | null>(null);
 
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [originText, setOriginText] = useState("");
   const [destText, setDestText] = useState(initialDestination || "");
   const [origin, setOrigin] = useState<[number, number] | null>(null);
@@ -746,6 +749,36 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
     camerasLayerRef.current?.clearLayers();
   };
 
+  const launchFullscreenNav = useCallback(() => {
+    if (!routeInfo || !dest) return;
+    const effectiveOrigin = origin ?? userLatLng.current;
+    if (!effectiveOrigin) return;
+
+    // Save navigation data to localStorage for the standalone page
+    const navData: NavFullscreenData = {
+      steps,
+      routeCoords: routeCoordsRef.current,
+      origin: effectiveOrigin,
+      dest,
+      routeInfo,
+      alerts,
+      alertImpact,
+      voiceEnabled,
+      voiceSpeed,
+      speedCameras,
+      isNight: isNightTime(),
+    };
+    localStorage.setItem("cidadex_nav_fullscreen", JSON.stringify(navData));
+
+    if (isMobile) {
+      // Mobile: navigate in same tab
+      window.location.href = "/navegar";
+    } else {
+      // Desktop: open in new tab
+      window.open("/navegar", "_blank");
+    }
+  }, [routeInfo, dest, origin, steps, alerts, alertImpact, voiceEnabled, voiceSpeed, speedCameras, isNightTime, isMobile]);
+
   const centerOnPoints = useCallback(() => {
     if (!mapInstance.current) return;
     if (origin && dest) mapInstance.current.fitBounds(L.latLngBounds(origin, dest), { padding: [50, 50] });
@@ -755,7 +788,7 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
 
 
   return (
-    <div className="relative overflow-hidden rounded-2xl" style={{ height: "calc(100dvh - 130px)", minHeight: "480px" }}>
+    <div className="relative overflow-hidden rounded-2xl" style={{ height: "calc(100dvh - 110px)", minHeight: "480px" }}>
 
       {/* === Fullscreen Navigation Overlay === */}
       {fullscreenNav && routeInfo && (origin ?? userLatLng.current) && dest && (
@@ -799,14 +832,14 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
       )}
 
       {/* === RIGHT FABs (Waze-style circular buttons) === */}
-      <div className="absolute z-[1000] flex flex-col gap-2.5" style={{ top: "max(16px, env(safe-area-inset-top, 16px))", right: "14px" }}>
+      <div className="absolute z-[1000] flex flex-col gap-1.5" style={{ top: "max(8px, env(safe-area-inset-top, 8px))", right: "10px" }}>
         {/* GPS Toggle */}
         <button
           onClick={toggleTracking}
-          className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all active:scale-95 ${
+          className={`w-10 h-10 rounded-full shadow-md flex items-center justify-center transition-all active:scale-95 ${
             tracking
-              ? "bg-[#33C6AA] text-white shadow-[0_4px_15px_rgba(51,198,170,0.4)]"
-              : "bg-card text-foreground hover:bg-muted"
+              ? "bg-[#33C6AA]/90 text-white shadow-[0_4px_15px_rgba(51,198,170,0.4)]"
+              : "bg-card/80 backdrop-blur-md text-foreground hover:bg-muted/80"
           }`}
           title={tracking ? "Parar GPS" : "Ativar GPS"}
         >
@@ -817,8 +850,8 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
         {tracking && (
           <button
             onClick={() => { setSoundAlertsEnabled(!soundAlertsEnabled); if (!soundAlertsEnabled) alertedIdsRef.current.clear(); }}
-            className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all active:scale-95 ${
-              soundAlertsEnabled ? "bg-card text-foreground" : "bg-card text-muted-foreground/50"
+            className={`w-10 h-10 rounded-full shadow-md flex items-center justify-center transition-all active:scale-95 ${
+              soundAlertsEnabled ? "bg-card/80 backdrop-blur-md text-foreground" : "bg-card/80 backdrop-blur-md text-muted-foreground/50"
             }`}
             title={soundAlertsEnabled ? "Desativar alertas sonoros" : "Ativar alertas sonoros"}
           >
@@ -835,10 +868,10 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
               followGpsRef.current = next;
               if (next && userLatLng.current) mapInstance.current?.setView(userLatLng.current, Math.max(mapInstance.current?.getZoom() || 15, 16), { animate: true });
             }}
-            className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all active:scale-95 ${
+            className={`w-10 h-10 rounded-full shadow-md flex items-center justify-center transition-all active:scale-95 ${
               followGps
-                ? "bg-primary text-primary-foreground shadow-[0_4px_15px_hsla(var(--primary),0.4)]"
-                : "bg-card text-foreground hover:bg-muted"
+                ? "bg-primary/90 text-primary-foreground shadow-[0_4px_15px_hsla(var(--primary),0.4)]"
+                : "bg-card/80 backdrop-blur-md text-foreground hover:bg-muted/80"
             }`}
             title={followGps ? "Parar de seguir" : "Seguir GPS"}
           >
@@ -849,7 +882,7 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
         {/* Day/Night Mode */}
         <button
           onClick={() => setMapDarkModeAndSave((prev) => prev === null ? true : prev ? false : null)}
-          className="w-12 h-12 rounded-full shadow-lg bg-card text-foreground flex items-center justify-center hover:bg-muted transition-all active:scale-95"
+          className="w-10 h-10 rounded-full shadow-md bg-card/80 backdrop-blur-md text-foreground flex items-center justify-center hover:bg-muted/80 transition-all active:scale-95"
           title={mapDarkMode === null ? "Auto > Noturno" : mapDarkMode ? "Noturno > Diurno" : "Diurno > Auto"}
         >
           {mapDarkMode === null ? <Sun className="w-5 h-5 text-amber-500" /> : mapDarkMode ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
@@ -871,7 +904,7 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
       {!searchExpanded && !fullscreenNav && (
         <button
           onClick={() => { setShowAlertForm(true); setPlacingAlert(true); setSearchExpanded(true); }}
-          className="absolute left-3.5 z-[1000] w-12 h-12 rounded-full shadow-lg bg-amber-500 text-white flex items-center justify-center hover:bg-amber-600 active:scale-95 transition-all"
+          className="absolute left-3 z-[1000] w-10 h-10 rounded-full shadow-md bg-amber-500/85 backdrop-blur-md text-white flex items-center justify-center hover:bg-amber-600 active:scale-95 transition-all"
           style={{ bottom: routeInfo ? "220px" : "96px" }}
           title="Reportar alerta de trânsito"
         >
@@ -897,12 +930,12 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
         <div className="absolute left-3.5 right-3.5 z-[1000]" style={{ bottom: "max(20px, env(safe-area-inset-bottom, 20px))" }}>
           <button
             onClick={() => setSearchExpanded(true)}
-            className="w-full flex items-center gap-4 bg-card/95 backdrop-blur-xl rounded-full px-5 py-4 shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all text-left group active:scale-[0.98]"
+            className="w-full flex items-center gap-3 bg-card/85 backdrop-blur-xl rounded-full px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.18)] transition-all text-left group active:scale-[0.98]"
           >
-            <div className="w-10 h-10 rounded-full bg-[#33C6AA]/10 flex items-center justify-center group-hover:bg-[#33C6AA]/20 transition-colors shrink-0">
-              <Search className="w-5 h-5 text-[#33C6AA]" />
+            <div className="w-8 h-8 rounded-full bg-[#33C6AA]/10 flex items-center justify-center group-hover:bg-[#33C6AA]/20 transition-colors shrink-0">
+              <Search className="w-4 h-4 text-[#33C6AA]" />
             </div>
-            <span className="text-muted-foreground font-medium text-base">Para onde?</span>
+            <span className="text-muted-foreground font-medium text-sm">Para onde?</span>
           </button>
         </div>
       )}
@@ -941,7 +974,7 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
               routeInfo={routeInfo} alertImpact={alertImpact}
               eta={eta} tracking={tracking}
               remainingDuration={remainingDuration} rerouting={rerouting}
-              onStartNavigation={routeInfo ? () => { if (!tracking) toggleTracking(); setFullscreenNav(true); } : undefined}
+              onStartNavigation={routeInfo ? () => { if (!tracking) toggleTracking(); launchFullscreenNav(); } : undefined}
               transportMode={transportMode} setTransportMode={setTransportMode}
               avoidHighways={avoidHighways} setAvoidHighways={setAvoidHighways}
               alternatives={alternatives}
@@ -1002,20 +1035,20 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
       {/* === BOTTOM: Route Summary Card (Waze-style) === */}
       {routeInfo && !searchExpanded && !fullscreenNav && (
         <div className="absolute bottom-0 left-0 right-0 z-[1000] px-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}>
-          <div className="bg-card/95 backdrop-blur-xl rounded-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] border border-border/20 overflow-hidden">
+          <div className="bg-card/80 backdrop-blur-xl rounded-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] border border-border/20 overflow-hidden">
 
             {/* Destination label */}
-            <div className="px-4 pt-3 pb-2 border-b border-border/20">
-              <p className="text-xs text-muted-foreground truncate">
+            <div className="px-3 pt-2.5 pb-1.5 border-b border-border/20">
+              <p className="text-[11px] text-muted-foreground truncate">
                 <span className="font-semibold text-foreground">{destText || "Destino"}</span>
                 {originText && <span className="opacity-70"> — de {originText}</span>}
               </p>
             </div>
 
-            {/* Route metrics (big numbers) */}
-            <div className="flex items-center justify-around px-4 py-3">
+            {/* Route metrics */}
+            <div className="flex items-center justify-around px-3 py-2">
               <div className="text-center flex-1">
-                <p className="text-2xl font-extrabold text-[#33C6AA] tracking-tight">
+                <p className="text-xl font-extrabold text-[#33C6AA] tracking-tight">
                   {alertImpact.penalty > 0
                     ? formatDuration(routeInfo.duration + alertImpact.penalty)
                     : formatDuration(routeInfo.duration)}
@@ -1024,17 +1057,17 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
               </div>
               <div className="w-px h-10 bg-border/40" />
               <div className="text-center flex-1">
-                <p className="text-2xl font-extrabold text-foreground tracking-tight">{formatDistance(routeInfo.distance)}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mt-0.5">Distância</p>
+                <p className="text-xl font-extrabold text-foreground tracking-tight">{formatDistance(routeInfo.distance)}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Distância</p>
               </div>
               {eta && (
                 <>
                   <div className="w-px h-10 bg-border/40" />
                   <div className="text-center flex-1">
-                    <p className="text-2xl font-extrabold text-foreground tracking-tight">
+                    <p className="text-xl font-extrabold text-foreground tracking-tight">
                       {eta.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mt-0.5">Chegada</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Chegada</p>
                   </div>
                 </>
               )}
@@ -1092,28 +1125,28 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
             )}
 
             {/* Action buttons: Edit / IR (GO) / Cancel */}
-            <div className="flex items-center gap-2.5 px-4 pb-4 pt-1">
+            <div className="flex items-center gap-2 px-3 pb-3 pt-0.5">
               <button
                 onClick={() => setSearchExpanded(true)}
-                className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 active:scale-95 transition-all"
+                className="w-10 h-10 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 active:scale-95 transition-all"
                 title="Editar rota"
               >
-                <Pencil className="w-5 h-5" />
+                <Pencil className="w-4 h-4" />
               </button>
               <button
-                onClick={() => { if (!tracking) toggleTracking(); setFullscreenNav(true); }}
-                className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-xl bg-[#33C6AA] text-white font-extrabold text-lg shadow-lg shadow-[#33C6AA]/30 hover:bg-[#2BB89A] active:scale-[0.97] transition-all"
+                onClick={() => { if (!tracking) toggleTracking(); launchFullscreenNav(); }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#33C6AA] text-white font-extrabold text-base shadow-lg shadow-[#33C6AA]/30 hover:bg-[#2BB89A] active:scale-[0.97] transition-all"
                 title="Iniciar navegação"
               >
-                <Navigation className="w-6 h-6" />
+                <Navigation className="w-5 h-5" />
                 IR
               </button>
               <button
                 onClick={() => { if (tracking) toggleTracking(); clearRoute(); }}
-                className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all"
+                className="w-10 h-10 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all"
                 title="Cancelar rota"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -1122,15 +1155,15 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
 
       {/* === TOP: Step-by-step floating card === */}
       {stepByStep && steps[activeStep] && !searchExpanded && !fullscreenNav && (
-        <div className="absolute left-3.5 right-16 z-[999]" style={{ top: "max(16px, env(safe-area-inset-top, 16px))" }}>
-          <div className="bg-card/95 backdrop-blur-xl rounded-2xl shadow-xl p-3 border border-border/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#33C6AA] text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-md shadow-[#33C6AA]/30">
+        <div className="absolute left-3 right-14 z-[999]" style={{ top: "max(8px, env(safe-area-inset-top, 8px))" }}>
+          <div className="bg-card/75 backdrop-blur-xl rounded-xl shadow-md p-2.5 border border-border/15">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#33C6AA]/90 text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {activeStep + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-foreground leading-snug truncate">{steps[activeStep].instruction}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{formatDistance(steps[activeStep].distance)} · {formatDuration(steps[activeStep].duration)}</p>
+                <p className="font-semibold text-xs text-foreground leading-snug truncate">{steps[activeStep].instruction}</p>
+                <p className="text-[9px] text-muted-foreground">{formatDistance(steps[activeStep].distance)} · {formatDuration(steps[activeStep].duration)}</p>
               </div>
             </div>
           </div>
@@ -1141,8 +1174,8 @@ const NavigationSection = ({ cityId, coordenadas, zoom, cityName, bairros = [], 
       {steps.length > 0 && !stepByStep && !searchExpanded && !fullscreenNav && (
         <button
           onClick={() => setSearchExpanded(true)}
-          className="absolute left-3.5 z-[999] flex items-center gap-2 bg-card/90 backdrop-blur-lg rounded-full px-3.5 py-2 shadow-lg border border-border/20 text-xs font-semibold text-foreground hover:bg-card active:scale-95 transition-all"
-          style={{ top: "max(16px, env(safe-area-inset-top, 16px))" }}
+          className="absolute left-3 z-[999] flex items-center gap-1.5 bg-card/75 backdrop-blur-lg rounded-full px-3 py-1.5 shadow-md border border-border/15 text-[11px] font-semibold text-foreground hover:bg-card/85 active:scale-95 transition-all"
+          style={{ top: "max(8px, env(safe-area-inset-top, 8px))" }}
           title="Ver instruções"
         >
           <CornerDownRight className="w-4 h-4 text-[#33C6AA]" />
