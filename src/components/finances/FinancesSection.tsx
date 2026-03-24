@@ -204,7 +204,12 @@ const FinancesSection = () => {
       }
       recurringGenerated.current = true;
       try {
-        await supabase.functions.invoke("generate-recurring");
+        const { data, error } = await supabase.functions.invoke("generate-recurring");
+        if (data?.created > 0) {
+          toast({ title: "🔄 Recorrências atualizadas", description: `${data.created} parcela(s) futura(s) gerada(s).` });
+        }
+        if (error) console.warn("generate-recurring error:", error);
+        if (data?.errors) console.warn("generate-recurring partial errors:", data.errors);
       } catch (e) {
         console.warn("generate-recurring call failed:", e);
       }

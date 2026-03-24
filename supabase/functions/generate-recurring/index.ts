@@ -16,8 +16,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find all recurring active records that are the latest in their group
-    // We look for records where is_recurring = true AND recurring_active = true
+    // Fetch ALL recurring active records
     const { data: recurringRecords, error: fetchError } = await supabase
       .from("financial_records")
       .select("*")
@@ -26,7 +25,7 @@ Deno.serve(async (req) => {
       .order("due_date", { ascending: false });
 
     if (fetchError) {
-      console.error("Error fetching recurring records:", fetchError);
+      console.error("Error fetching:", fetchError);
       return new Response(JSON.stringify({ error: fetchError.message }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -39,69 +38,58 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Group by installment_group_id (or by individual record if no group)
+    // Group by installment_group_id
     const groups = new Map<string, typeof recurringRecords>();
     for (const record of recurringRecords) {
       const key = record.installment_group_id || record.id;
-      if (!groups.has(key)) {
-        groups.set(key, []);
-      }
+      if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(record);
     }
 
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
     let createdCount = 0;
+    const errors: string[] = [];
 
     for (const [groupKey, groupRecords] of groups) {
-      // Find the most recent record by due_date in this group
+      // Find the most recent record
       const sorted = groupRecords.sort((a: any, b: any) => {
-        const dateA = a.due_date ? new Date(a.due_date + "T12:00:00").getTime() : 0;
-        const dateB = b.due_date ? new Date(b.due_date + "T12:00:00").getTime() : 0;
-        return dateB - dateA;
+        return (b.due_date || "").localeCompare(a.due_date || "");
       });
       const latest = sorted[0];
-
       if (!latest.due_date) continue;
 
       const latestDate = new Date(latest.due_date + "T12:00:00");
-
-      // Check if a record already exists for the current month
-      const hasCurrentMonth = groupRecords.some((r: any) => {
-        if (!r.due_date) return false;
-        const d = new Date(r.due_date + "T12:00:00");
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-      });
-
-      // Determine the next installment number
+      const baseDesc = latest.description.replace(/\s*\(\d+\/?\d*\)\s*$/, "").trim();
       let maxNum = Math.max(...groupRecords.map((r: any) => r.installment_number || 0));
 
-      // Clean description of existing suffix
-      const baseDesc = latest.description.replace(/\s*\(\d+\/?\d*\)\s*$/, "").trim();
+      // Collect existing months in this group
+      const existingMonths = new Set(
+        groupRecords
+          .filter((r: any) => r.due_date)
+          .map((r: any) => r.due_date.substring(0, 7)) // "yyyy-MM"
+      );
 
-      // Generate records up to 6 months in the future
-      const futureLimit = new Date(currentYear, currentMonth + 6, 1);
+      // Generate from the month after latest, up to 6 months from now
+      const futureLimit = new Date(now.getFullYear(), now.getMonth() + 7, 0); // end of 6th month
       let nextDate = new Date(latestDate);
       nextDate.setMonth(nextDate.getMonth() + 1);
 
-      while (nextDate < futureLimit) {
-        // Check if a record already exists for this month
-        const monthExists = groupRecords.some((r: any) => {
-          if (!r.due_date) return false;
-          const d = new Date(r.due_date + "T12:00:00");
-          return d.getMonth() === nextDate.getMonth() && d.getFullYear() === nextDate.getFullYear();
-        });
+      const toInsert = [];
 
-        if (!monthExists) {
+      while (nextDate <= futureLimit) {
+        const monthKey = nextDate.toISOString().substring(0, 7); // "yyyy-MM"
+        const dueStr = nextDate.toISOString().split("T")[0];
+
+        if (!existingMonths.has(monthKey)) {
           maxNum++;
-          const newRecord = {
+          existingMonths.add(monthKey); // prevent duplicates in same run
+          toInsert.push({
             user_id: latest.user_id,
             type: latest.type,
             description: baseDesc,
             amount: latest.amount,
-            entry_date: nextDate.toISOString().split("T")[0],
-            due_date: nextDate.toISOString().split("T")[0],
+            entry_date: dueStr,
+            due_date: dueStr,
             payment_date: null,
             payee: latest.payee,
             category: latest.category,
@@ -118,31 +106,44 @@ Deno.serve(async (req) => {
             recurring_active: true,
             account_id: latest.account_id,
             payment_method: latest.payment_method,
-          };
-
-          const { error: insertError } = await supabase
-            .from("financial_records")
-            .insert(newRecord);
-
-          if (insertError) {
-            console.error(`Error creating recurring record for group ${groupKey}:`, insertError);
-          } else {
-            createdCount++;
-          }
+          });
         }
 
-        nextDate = new Date(nextDate);
-        nextDate.setMonth(nextDate.getMonth() + 1);
+        // Move to next month (based on same day)
+        const day = latestDate.getDate();
+        const newMonth = nextDate.getMonth() + 1;
+        const newYear = nextDate.getFullYear() + (newMonth > 11 ? 1 : 0);
+        nextDate = new Date(newYear, newMonth % 12, day, 12);
+      }
+
+      // Batch insert
+      if (toInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from("financial_records")
+          .insert(toInsert);
+        if (insertError) {
+          console.error(`Error for group ${groupKey}:`, insertError);
+          errors.push(`${groupKey}: ${insertError.message}`);
+        } else {
+          createdCount += toInsert.length;
+        }
       }
     }
 
-    return new Response(
-      JSON.stringify({ message: `Generated ${createdCount} recurring records`, created: createdCount }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const result = {
+      message: `Generated ${createdCount} recurring records from ${groups.size} groups`,
+      created: createdCount,
+      groups: groups.size,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+    console.log(JSON.stringify(result));
+
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.error("Unexpected error:", err);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
