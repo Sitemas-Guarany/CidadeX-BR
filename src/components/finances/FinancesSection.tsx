@@ -593,6 +593,27 @@ const FinancesSection = () => {
     }
   };
 
+  const handleDeleteGroupPendentes = async (groupId: string) => {
+    if (!user) return;
+    const pendentes = records.filter(r => r.installment_group_id === groupId && (r.status === "pendente" || r.status === "vencido"));
+    if (pendentes.length === 0) {
+      toast({ title: "Nenhuma parcela em aberto", description: "Todas as parcelas já foram pagas ou canceladas." });
+      return;
+    }
+    const ids = pendentes.map(r => r.id);
+    const { error } = await supabase
+      .from("financial_records")
+      .delete()
+      .in("id", ids)
+      .eq("user_id", user.id);
+    if (error) {
+      toast({ title: "Erro", description: "Não foi possível excluir.", variant: "destructive" });
+    } else {
+      toast({ title: "🗑️ Parcelas em aberto excluídas!", description: `${pendentes.length} parcela(s) pendente(s)/vencida(s) removida(s). Pagas mantidas.` });
+      setRecords(prev => prev.filter(r => !ids.includes(r.id)));
+    }
+  };
+
   const handleRegisterPayment = async () => {
     if (!user || !paymentTarget) return;
     const dateStr = paymentDateStr;
@@ -1609,13 +1630,22 @@ const FinancesSection = () => {
                       <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                         {record.installment_group_id && records.filter(r => r.installment_group_id === record.installment_group_id).length > 1 && (
-                          <AlertDialogAction
-                            onClick={() => handleDeleteGroup(record.installment_group_id!)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            title="Excluir todos os registros do grupo"
-                          >
-                            <Layers className="w-3.5 h-3.5 mr-1" /> Excluir todas
-                          </AlertDialogAction>
+                          <>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteGroupPendentes(record.installment_group_id!)}
+                              className="bg-amber-500 text-white hover:bg-amber-600"
+                              title="Excluir somente parcelas pendentes e vencidas (manter as pagas)"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Só em aberto
+                            </AlertDialogAction>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteGroup(record.installment_group_id!)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              title="Excluir todos os registros do grupo (inclusive pagos)"
+                            >
+                              <Layers className="w-3.5 h-3.5 mr-1" /> Excluir todas
+                            </AlertDialogAction>
+                          </>
                         )}
                         <AlertDialogAction
                           onClick={() => handleDelete(record.id)}
