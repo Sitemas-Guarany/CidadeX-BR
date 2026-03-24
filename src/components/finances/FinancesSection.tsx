@@ -634,6 +634,97 @@ const FinancesSection = () => {
     }
   };
 
+  const [generatingFuture, setGeneratingFuture] = useState(false);
+  const handleGenerateFuture = async () => {
+    if (!user) return;
+    setGeneratingFuture(true);
+    try {
+      // Find all recurring groups
+      const recurring = records.filter(r => r.is_recurring && r.recurring_active);
+      const groups = new Map<string, DBRecord[]>();
+      for (const r of recurring) {
+        const key = r.installment_group_id || r.id;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(r);
+      }
+
+      const now = new Date();
+      let totalCreated = 0;
+
+      for (const [groupKey, groupRecords] of groups) {
+        // Find latest due_date
+        const sorted = [...groupRecords].sort((a, b) => (b.due_date || "").localeCompare(a.due_date || ""));
+        const latest = sorted[0];
+        if (!latest?.due_date) continue;
+
+        const latestDate = new Date(latest.due_date + "T12:00:00");
+        const baseDesc = latest.description.replace(/\s*\(\d+\/?\d*\)\s*$/, "").trim();
+        let maxNum = Math.max(...groupRecords.map(r => (r as any).installment_number || 0));
+
+        // Existing months
+        const existingMonths = new Set(groupRecords.filter(r => r.due_date).map(r => r.due_date!.substring(0, 7)));
+
+        // Generate up to 6 months from now
+        const futureLimit = addMonths(now, 6);
+        let nextDate = addMonths(latestDate, 1);
+        const toInsert = [];
+
+        while (nextDate <= futureLimit) {
+          const monthKey = format(nextDate, "yyyy-MM");
+          if (!existingMonths.has(monthKey)) {
+            maxNum++;
+            existingMonths.add(monthKey);
+            toInsert.push({
+              user_id: user.id,
+              type: latest.type,
+              description: baseDesc,
+              amount: latest.amount,
+              entry_date: format(nextDate, "yyyy-MM-dd"),
+              due_date: format(nextDate, "yyyy-MM-dd"),
+              payment_date: null,
+              payee: latest.payee || null,
+              category: latest.category,
+              referente: latest.referente || null,
+              status: "pendente" as const,
+              notes: "Gerado automaticamente (recorrência mensal)",
+              installment_total: null,
+              installment_number: maxNum,
+              installment_group_id: latest.installment_group_id || groupKey,
+              interest_amount: 0,
+              discount_amount: 0,
+              attachment_url: null,
+              is_recurring: true,
+              recurring_active: true,
+              account_id: latest.account_id || null,
+              payment_method: latest.payment_method || null,
+            });
+          }
+          nextDate = addMonths(nextDate, 1);
+        }
+
+        if (toInsert.length > 0) {
+          const { error } = await supabase.from("financial_records").insert(toInsert);
+          if (error) {
+            console.error("Erro ao gerar futuras:", error);
+          } else {
+            totalCreated += toInsert.length;
+          }
+        }
+      }
+
+      if (totalCreated > 0) {
+        toast({ title: "🔄 Parcelas futuras geradas!", description: `${totalCreated} parcela(s) criada(s) para os próximos 6 meses.` });
+      } else {
+        toast({ title: "✅ Tudo em dia!", description: "As recorrências já têm parcelas futuras geradas." });
+      }
+      fetchRecords();
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Erro", description: "Falha ao gerar parcelas futuras.", variant: "destructive" });
+    }
+    setGeneratingFuture(false);
+  };
+
   const handleRegisterPayment = async () => {
     if (!user || !paymentTarget) return;
     const dateStr = paymentDateStr;
@@ -1269,10 +1360,23 @@ const FinancesSection = () => {
         </div>
       )}
 
-      {/* Dica recorrente */}
-      <p className="text-[10px] text-muted-foreground italic flex items-center gap-1">
-        <Repeat className="w-3 h-3" /> Recorrente — gera parcela no 1° dia útil de cada mês
-      </p>
+      {/* Dica recorrente + botão gerar futuras */}
+      <div className="flex items-center gap-2">
+        <p className="text-[10px] text-muted-foreground italic flex items-center gap-1 flex-1">
+          <Repeat className="w-3 h-3" /> Recorrente — gera parcela no 1° dia útil de cada mês
+        </p>
+        {records.some(r => r.is_recurring && r.recurring_active) && (
+          <button
+            onClick={handleGenerateFuture}
+            disabled={generatingFuture}
+            className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+            title="Gerar parcelas dos próximos 6 meses para todas as recorrências"
+          >
+            {generatingFuture ? <Loader2 className="w-3 h-3 animate-spin" /> : <Repeat className="w-3 h-3" />}
+            Gerar próximos 6 meses
+          </button>
+        )}
+      </div>
 
       {/* Loading */}
       {loading && (
