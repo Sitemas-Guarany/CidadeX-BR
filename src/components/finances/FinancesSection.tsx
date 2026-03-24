@@ -274,13 +274,28 @@ const FinancesSection = () => {
         nextDate = addMonths(baseDate, installmentNum - 1);
       }
 
+      if (parcelas.length === 0) {
+        // Fallback: cria pelo menos 1 parcela (mês atual)
+        parcelas.push({
+          user_id: user.id, type: record.type, description: record.description.trim(),
+          amount: record.amount, entry_date: format(now, "yyyy-MM-dd"), due_date: format(now, "yyyy-MM-dd"),
+          payment_date: record.payment_date || null, payee: record.payee.trim() || null,
+          category: record.category, referente: record.referente.trim() || null,
+          status: record.status, notes: record.notes.trim() || null,
+          installment_total: null, installment_number: 1, installment_group_id: groupId,
+          interest_amount: record.interest_amount || 0, discount_amount: record.discount_amount || 0,
+          attachment_url: record.attachment_url || null, is_recurring: true, recurring_active: true,
+          account_id: accountId, payment_method: record.payment_method || null,
+        });
+      }
       const { error } = await supabase.from("financial_records").insert(parcelas);
       if (error) {
-        toast({ title: "Erro", description: "Não foi possível criar recorrência.", variant: "destructive" });
+        console.error("Erro ao criar recorrência:", error);
+        toast({ title: "Erro", description: `Não foi possível criar recorrência: ${error.message}`, variant: "destructive" });
       } else {
         const msg = parcelas.length > 1
           ? `${parcelas.length} parcelas criadas (retroativas + atual + próximos 6 meses).`
-          : "O próximo lançamento será gerado automaticamente no início do mês.";
+          : "Recorrência criada! Próximos meses serão gerados automaticamente.";
         toast({ title: "🔄 Recorrência criada!", description: msg });
       }
     } else if (installments && installments > 1) {
