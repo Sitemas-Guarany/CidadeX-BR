@@ -231,14 +231,14 @@ const FinancesSection = () => {
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
-      // Calcular quantas parcelas gerar (do mês base até o mês atual, inclusive)
+      // Calcular quantas parcelas gerar (do mês base até 6 meses no futuro)
       const parcelas = [];
       let installmentNum = 1;
       let nextDate = new Date(baseDate);
+      const futureLimit = addMonths(now, 6);
 
       while (
-        nextDate.getFullYear() < currentYear ||
-        (nextDate.getFullYear() === currentYear && nextDate.getMonth() <= currentMonth)
+        nextDate <= futureLimit
       ) {
         const dueStr = format(nextDate, "yyyy-MM-dd");
         const isPast = nextDate.getFullYear() < currentYear ||
@@ -279,7 +279,7 @@ const FinancesSection = () => {
         toast({ title: "Erro", description: "Não foi possível criar recorrência.", variant: "destructive" });
       } else {
         const msg = parcelas.length > 1
-          ? `${parcelas.length} parcelas criadas (retroativas + atual). Próxima será gerada automaticamente.`
+          ? `${parcelas.length} parcelas criadas (retroativas + atual + próximos 6 meses).`
           : "O próximo lançamento será gerado automaticamente no início do mês.";
         toast({ title: "🔄 Recorrência criada!", description: msg });
       }

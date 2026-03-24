@@ -74,57 +74,65 @@ Deno.serve(async (req) => {
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
       });
 
-      if (hasCurrentMonth) continue;
-
-      // Calculate next month's due date from the latest record
-      const nextDate = new Date(latestDate);
-      nextDate.setMonth(nextDate.getMonth() + 1);
-
-      // Only create if the next date is in current month or earlier (catch-up)
-      if (nextDate.getFullYear() > currentYear || 
-          (nextDate.getFullYear() === currentYear && nextDate.getMonth() > currentMonth)) {
-        continue;
-      }
-
       // Determine the next installment number
-      const maxNum = Math.max(...groupRecords.map((r: any) => r.installment_number || 0));
+      let maxNum = Math.max(...groupRecords.map((r: any) => r.installment_number || 0));
 
       // Clean description of existing suffix
       const baseDesc = latest.description.replace(/\s*\(\d+\/?\d*\)\s*$/, "").trim();
 
-      const newRecord = {
-        user_id: latest.user_id,
-        type: latest.type,
-        description: baseDesc,
-        amount: latest.amount,
-        entry_date: nextDate.toISOString().split("T")[0],
-        due_date: nextDate.toISOString().split("T")[0],
-        payment_date: null,
-        payee: latest.payee,
-        category: latest.category,
-        referente: latest.referente,
-        status: "pendente",
-        notes: "Gerado automaticamente (recorrência mensal)",
-        installment_total: null,
-        installment_number: maxNum + 1,
-        installment_group_id: latest.installment_group_id || groupKey,
-        interest_amount: 0,
-        discount_amount: 0,
-        attachment_url: null,
-        is_recurring: true,
-        recurring_active: true,
-        account_id: latest.account_id,
-        payment_method: latest.payment_method,
-      };
+      // Generate records up to 6 months in the future
+      const futureLimit = new Date(currentYear, currentMonth + 6, 1);
+      let nextDate = new Date(latestDate);
+      nextDate.setMonth(nextDate.getMonth() + 1);
 
-      const { error: insertError } = await supabase
-        .from("financial_records")
-        .insert(newRecord);
+      while (nextDate < futureLimit) {
+        // Check if a record already exists for this month
+        const monthExists = groupRecords.some((r: any) => {
+          if (!r.due_date) return false;
+          const d = new Date(r.due_date + "T12:00:00");
+          return d.getMonth() === nextDate.getMonth() && d.getFullYear() === nextDate.getFullYear();
+        });
 
-      if (insertError) {
-        console.error(`Error creating recurring record for group ${groupKey}:`, insertError);
-      } else {
-        createdCount++;
+        if (!monthExists) {
+          maxNum++;
+          const newRecord = {
+            user_id: latest.user_id,
+            type: latest.type,
+            description: baseDesc,
+            amount: latest.amount,
+            entry_date: nextDate.toISOString().split("T")[0],
+            due_date: nextDate.toISOString().split("T")[0],
+            payment_date: null,
+            payee: latest.payee,
+            category: latest.category,
+            referente: latest.referente,
+            status: "pendente",
+            notes: "Gerado automaticamente (recorrência mensal)",
+            installment_total: null,
+            installment_number: maxNum,
+            installment_group_id: latest.installment_group_id || groupKey,
+            interest_amount: 0,
+            discount_amount: 0,
+            attachment_url: null,
+            is_recurring: true,
+            recurring_active: true,
+            account_id: latest.account_id,
+            payment_method: latest.payment_method,
+          };
+
+          const { error: insertError } = await supabase
+            .from("financial_records")
+            .insert(newRecord);
+
+          if (insertError) {
+            console.error(`Error creating recurring record for group ${groupKey}:`, insertError);
+          } else {
+            createdCount++;
+          }
+        }
+
+        nextDate = new Date(nextDate);
+        nextDate.setMonth(nextDate.getMonth() + 1);
       }
     }
 
