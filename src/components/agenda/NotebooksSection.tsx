@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   BookOpen, Plus, Edit2, Trash2, ChevronLeft, Pin, PinOff, Search,
   FileText, Loader2, Check, X, StickyNote, ArrowUpDown, Share2, Printer,
-  Bold, Italic, List, ListOrdered, ListChecks, Link, Eye, EyeOff, Copy, FileInput
+  Bold, Italic, List, ListOrdered, ListChecks, Link, Eye, EyeOff, Copy, FileInput, ImagePlus
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -330,7 +330,35 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
   // ==============================================================
   // ---- Rich text helpers ----
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [imageUploading, setImageUploading] = useState(false);
+
+  const handleImageUpload = async (file: File) => {
+    if (!user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Imagem muito grande", description: "Máximo 5 MB.", variant: "destructive" });
+      return;
+    }
+    setImageUploading(true);
+    const ext = file.type.split("/")[1]?.replace("jpeg", "jpg") || "png";
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("note-images").upload(path, file, { contentType: file.type });
+    if (error) {
+      toast({ title: "Erro ao enviar imagem", description: error.message, variant: "destructive" });
+      setImageUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("note-images").getPublicUrl(path);
+    const ta = textareaRef.current;
+    const pos = ta?.selectionStart ?? noteContent.length;
+    const imgMd = `\n![imagem](${urlData.publicUrl})\n`;
+    setNoteContent(prev => prev.substring(0, pos) + imgMd + prev.substring(pos));
+    setImageUploading(false);
+    toast({ title: "Imagem adicionada" });
+    setTimeout(() => {
+      if (ta) { const np = pos + imgMd.length; ta.focus(); ta.setSelectionRange(np, np); }
+    }, 0);
+  };
 
   const insertAtCursor = (before: string, after: string = "") => {
     const ta = textareaRef.current;
@@ -688,6 +716,21 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
             className={cn("p-1.5 rounded-md hover:bg-accent transition-colors", previewMode && "opacity-40 pointer-events-none")} title="Inserir link">
             <Link className="w-4 h-4" />
           </button>
+          <button type="button" onClick={() => imageInputRef.current?.click()}
+            className={cn("p-1.5 rounded-md hover:bg-accent transition-colors", (previewMode || imageUploading) && "opacity-40 pointer-events-none")} title="Anexar imagem">
+            {imageUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
+          </button>
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageUpload(file);
+              e.target.value = "";
+            }}
+          />
           <div className="flex-1" />
           <button type="button" onClick={() => setPreviewMode(!previewMode)}
             className={cn("p-1.5 rounded-md hover:bg-accent transition-colors", previewMode && "bg-accent")} title={previewMode ? "Editar" : "Visualizar"}>
@@ -741,35 +784,12 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
                   if (item.type.startsWith("image/")) {
                     e.preventDefault();
                     const file = item.getAsFile();
-                    if (!file || !user) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                      toast({ title: "Imagem muito grande", description: "Máximo 5 MB.", variant: "destructive" });
-                      return;
-                    }
-                    setImageUploading(true);
-                    const ext = file.type.split("/")[1]?.replace("jpeg", "jpg") || "png";
-                    const path = `${user.id}/${Date.now()}.${ext}`;
-                    const { error } = await supabase.storage.from("note-images").upload(path, file, { contentType: file.type });
-                    if (error) {
-                      toast({ title: "Erro ao enviar imagem", description: error.message, variant: "destructive" });
-                      setImageUploading(false);
-                      return;
-                    }
-                    const { data: urlData } = supabase.storage.from("note-images").getPublicUrl(path);
-                    const ta = textareaRef.current;
-                    const pos = ta?.selectionStart ?? noteContent.length;
-                    const imgMd = `\n![imagem](${urlData.publicUrl})\n`;
-                    setNoteContent(prev => prev.substring(0, pos) + imgMd + prev.substring(pos));
-                    setImageUploading(false);
-                    toast({ title: "Imagem colada" });
-                    setTimeout(() => {
-                      if (ta) { const np = pos + imgMd.length; ta.focus(); ta.setSelectionRange(np, np); }
-                    }, 0);
+                    if (file) handleImageUpload(file);
                     return;
                   }
                 }
               }}
-              placeholder="Escreva sua nota aqui... (cole imagens com Ctrl+V)"
+              placeholder="Escreva sua nota aqui... (cole ou anexe imagens)"
               rows={12}
               className="w-full px-3 py-2 rounded-lg bg-muted text-foreground text-sm outline-none focus:ring-2 ring-primary/30 placeholder:text-muted-foreground resize-none font-mono"
             />
