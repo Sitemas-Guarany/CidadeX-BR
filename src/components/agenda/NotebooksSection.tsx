@@ -81,6 +81,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
+  const [noteImages, setNoteImages] = useState<string[]>([]);
   const [noteSaving, setNoteSaving] = useState(false);
 
   // Search
@@ -191,13 +192,15 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
     if (!user || !selectedNotebook) return;
     setNoteSaving(true);
     if (selectedNote) {
+      const fullContent = combineContentWithImages(noteContent, noteImages);
       await supabase.from("notebook_notes").update({
-        title: noteTitle.trim(), content: noteContent,
+        title: noteTitle.trim(), content: fullContent,
       }).eq("id", selectedNote.id);
     } else {
+      const fullContent = combineContentWithImages(noteContent, noteImages);
       const { error } = await supabase.from("notebook_notes").insert({
         user_id: user.id, notebook_id: selectedNotebook.id,
-        title: noteTitle.trim() || "Sem título", content: noteContent, position: notes.length,
+        title: noteTitle.trim() || "Sem título", content: fullContent, position: notes.length,
       });
       if (error?.message?.includes("Limite")) {
         toast({ title: "Limite atingido", description: "Máximo de 100 notas por caderno.", variant: "destructive" });
@@ -210,6 +213,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
     setSelectedNote(null);
     setNoteTitle("");
     setNoteContent("");
+    setNoteImages([]);
     fetchNotes(selectedNotebook.id);
   };
 
@@ -227,9 +231,11 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
   };
 
   const openEditNote = (note: Note) => {
+    const { text, images } = extractImagesFromContent(note.content);
     setSelectedNote(note);
     setNoteTitle(note.title);
-    setNoteContent(note.content);
+    setNoteContent(text);
+    setNoteImages(images);
     setPreviewMode(false);
     setShowNoteForm(true);
   };
@@ -238,6 +244,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
     setSelectedNote(null);
     setNoteTitle("");
     setNoteContent("");
+    setNoteImages([]);
     setPreviewMode(false);
     setShowNoteForm(true);
   };
@@ -333,6 +340,21 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [imageUploading, setImageUploading] = useState(false);
 
+  // Helpers to separate images from text content
+  const extractImagesFromContent = (content: string): { text: string; images: string[] } => {
+    const images: string[] = [];
+    const text = content.replace(/\n?!\[[^\]]*\]\(([^)]+)\)\n?/g, (_match, url) => {
+      images.push(url);
+      return "";
+    }).trim();
+    return { text, images };
+  };
+
+  const combineContentWithImages = (text: string, images: string[]): string => {
+    if (!images.length) return text;
+    return text + "\n" + images.map(url => `![imagem](${url})`).join("\n");
+  };
+
   const handleImageUpload = async (file: File) => {
     if (!user) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -349,15 +371,9 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
       return;
     }
     const { data: urlData } = supabase.storage.from("note-images").getPublicUrl(path);
-    const ta = textareaRef.current;
-    const pos = ta?.selectionStart ?? noteContent.length;
-    const imgMd = `\n![imagem](${urlData.publicUrl})\n`;
-    setNoteContent(prev => prev.substring(0, pos) + imgMd + prev.substring(pos));
+    setNoteImages(prev => [...prev, urlData.publicUrl]);
     setImageUploading(false);
     toast({ title: "Imagem adicionada" });
-    setTimeout(() => {
-      if (ta) { const np = pos + imgMd.length; ta.focus(); ta.setSelectionRange(np, np); }
-    }, 0);
   };
 
   const insertAtCursor = (before: string, after: string = "") => {
@@ -674,7 +690,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
     return (
       <div className="space-y-3 animate-fade-in">
         <div className="flex items-center gap-2">
-          <button onClick={() => { setShowNoteForm(false); setSelectedNote(null); }}
+          <button onClick={() => { setShowNoteForm(false); setSelectedNote(null); setNoteImages([]); }}
             className="p-1.5 rounded-md hover:bg-muted transition-colors" title="Voltar">
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -739,7 +755,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
         </div>
         {previewMode ? (
           <div className="w-full px-3 py-2 rounded-lg bg-muted text-foreground min-h-[14rem] max-h-[24rem] overflow-y-auto">
-            {renderMarkdown(noteContent)}
+            {renderMarkdown(combineContentWithImages(noteContent, noteImages))}
           </div>
         ) : (
           <div className="space-y-2">
@@ -794,34 +810,34 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
               className="w-full px-3 py-2 rounded-lg bg-muted text-foreground text-sm outline-none focus:ring-2 ring-primary/30 placeholder:text-muted-foreground resize-none font-mono"
             />
             {/* Image previews in edit mode */}
-            {(() => {
-              const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-              const images: { alt: string; src: string }[] = [];
-              let im;
-              while ((im = imgRegex.exec(noteContent)) !== null) {
-                images.push({ alt: im[1] || "imagem", src: im[2] });
-              }
-              if (!images.length) return null;
-              return (
-                <div className="rounded-lg border border-border bg-card/60 p-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
-                    Imagens anexadas
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {images.map((img, i) => (
+            {noteImages.length > 0 && (
+              <div className="rounded-lg border border-border bg-card/60 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+                  Imagens anexadas ({noteImages.length})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {noteImages.map((src, i) => (
+                    <div key={i} className="relative group">
                       <img
-                        key={i}
-                        src={img.src}
-                        alt={img.alt}
+                        src={src}
+                        alt="imagem"
                         className="h-20 w-20 object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
                         loading="lazy"
-                        onClick={() => setLightboxSrc({ src: img.src, alt: img.alt })}
+                        onClick={() => setLightboxSrc({ src, alt: "imagem" })}
                       />
-                    ))}
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => setNoteImages(prev => prev.filter((_, idx) => idx !== i))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remover imagem"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              );
-            })()}
+              </div>
+            )}
             {(() => {
               const linkRegex = /(https?:\/\/[^\s)\]]+)|(mailto:[^\s)\]]+)|(tel:\+?\d{8,15})|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})|(\b\d{5}-?\d{3}\b)|((?:\+?\d{1,3}[\s-]?)?\(?\d{2,3}\)?[\s.-]?\d{4,5}[\s.-]?\d{4})/gi;
               const found: { type: string; value: string; href: string }[] = [];
@@ -884,7 +900,7 @@ const NotebooksSection = React.forwardRef<HTMLDivElement>(function NotebooksSect
             {noteSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             Salvar
           </button>
-          <button onClick={() => { setShowNoteForm(false); setSelectedNote(null); }}
+          <button onClick={() => { setShowNoteForm(false); setSelectedNote(null); setNoteImages([]); }}
             className="px-4 py-2.5 rounded-lg bg-muted text-muted-foreground text-sm font-semibold hover:bg-accent transition-colors"
             title="Cancelar">
             <X className="w-4 h-4" />
