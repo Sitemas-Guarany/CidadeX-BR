@@ -1363,7 +1363,7 @@ const FinancesSection = () => {
       {/* Dica recorrente + botão gerar futuras */}
       <div className="flex items-center gap-2">
         <p className="text-[10px] text-muted-foreground italic flex items-center gap-1 flex-1">
-          <Repeat className="w-3 h-3" /> Recorrente — gera parcela no 1° dia útil de cada mês
+          <Repeat className="w-3 h-3" /> Recorrente — gera parcelas para os próximos 6 meses
         </p>
         {records.some(r => r.is_recurring && r.recurring_active) && (
           <button
