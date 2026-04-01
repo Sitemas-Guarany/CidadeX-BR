@@ -1384,6 +1384,29 @@ export default function MedicationsSection() {
                             <button onClick={() => handleEdit(med)} className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground" title="Editar">
                               <Edit2 className="w-3 h-3" />
                             </button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button className="p-1 rounded-md hover:bg-muted transition-colors" title={med.suspended ? "Retomar medicamento" : "Suspender medicamento"}>
+                                  {med.suspended ? <PlayCircle className="w-3 h-3 text-emerald-500" /> : <PauseCircle className="w-3 h-3 text-amber-500" />}
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{med.suspended ? "Retomar" : "Suspender"} medicamento?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {med.suspended
+                                      ? `Deseja retomar o uso de "${med.name}"?`
+                                      : `Deseja suspender temporariamente o uso de "${med.name}"?`}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleToggleSuspend(med)}>
+                                    {med.suspended ? "Retomar" : "Suspender"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                       );
