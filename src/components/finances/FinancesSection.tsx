@@ -1449,6 +1449,11 @@ const FinancesSection = () => {
                       }
                     </div>
                     <div className="min-w-0">
+                      {record.payee && (
+                        <p className="text-[10px] font-semibold text-muted-foreground truncate flex items-center gap-1">
+                          <User className="w-2.5 h-2.5" /> {record.payee}
+                        </p>
+                      )}
                       <p className="text-sm font-bold text-foreground truncate">{record.description}</p>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st.cls}`}>
@@ -1538,11 +1543,6 @@ const FinancesSection = () => {
                     <span className="flex items-center gap-1 font-bold text-[11px] px-1.5 py-0.5 rounded-md bg-green-500/10 text-green-600">
                       <Calendar className="w-3 h-3" />
                       Pago: {format(new Date(record.payment_date + "T12:00:00"), "dd/MM/yy")}
-                    </span>
-                  )}
-                  {record.payee && (
-                    <span className="flex items-center gap-1 font-bold text-foreground">
-                      <User className="w-2.5 h-2.5" /> {record.payee}
                     </span>
                   )}
                   {record.referente && (
