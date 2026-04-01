@@ -1019,7 +1019,7 @@ export default function AgendaSection({ onNavigateTo }: { onNavigateTo?: (addres
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("em_andamento");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterDateFrom, setFilterDateFrom] = useState<Date | null>(null);
   const [filterDateTo, setFilterDateTo] = useState<Date | null>(null);
